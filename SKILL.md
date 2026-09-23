@@ -2,7 +2,7 @@
 name: skill-batch-ops
 slug: skill-batch-ops
 displayName: Skill Batch Operations
-version: "1.0.1"
+version: "1.0.2"
 description: "Batch operations across many skills (3+): inventory, batch patching, multi-platform publish, version alignment, and per-item verification. Use for stale-skill sweeps, fleet-wide version bumps, or bulk ClawHub / SkillHub / GitHub sync. Trigger keywords: 批量更新 skill, batch publish, 批量补丁, 批量发布, multi-skill sync, version phantom occupation, 版本空占, 429 rate limit, 两周未更新, stale skill sweep, skill 盘点, 批量同步, align versions, bulk publish verify. Companion to skill-audit-publish which handles single-skill governance; includes the platform restriction checklist."
 description_zh: "多 skill 批量运维：盘点 → 批量补丁 → 多平台发布 → 逐项验证。包含平台限制清单（版本空占、skillhub 严格校验、60s 限流、显式传参）。适用于陈旧 skill 盘点、批量版本对齐、三平台批量同步。单 skill 治理走 skill-audit-publish，本 skill 只做批量手术。"
 read_when: "Operating on 3 or more skills at once: stale-skill sweeps, batch frontmatter patches, fleet-wide version alignment, or bulk platform sync."
@@ -36,8 +36,13 @@ Purpose: run the same operation across N skills without repeating known platform
 | ClawHub | unquoted version rejected | quote in frontmatter + explicit `--version` |
 | SkillHub | strict frontmatter validation | leading `---`, slug, displayName, version |
 | SkillHub | 429 on consecutive publishes | ≥60s interval |
+| SkillHub | tombstoned (deleted) skill blocks slug republish — `publish` returns 409 "slug 冲突: skill already exists" even for the owner; the record still shows in dashboard but 404s on public API (`/api/v1/skills/{slug}` + `/api/v1/download`) | no CLI/API undelete found (as of 2026-09-08); restore via web console (个人中心 → 我的 Skill), then CLI publish upserts normally; never probe DELETE to confirm tombstone state on a possibly-alive skill — use the public-detail 404 + publish 409 pattern instead |
+| SkillHub | publish of an ALIVE existing skill = same endpoint, upserts; response `skillId=<old id> status=None`, and `latestVersion` in API only updates after review queue clears | after publish, check `latestVersion` later; do not misread it as failure |
+| SkillHub | working publish channel = `POST https://api.skillhub.cn/api/v1/community/skills/publish`, Bearer token from `~/.skillhub/credentials.json`, multipart: `payload` (JSON: slug/displayName/version/summary/summaryZh/changelog/tags) + `files` parts (filename = relative path). The clawhub-CLI-with-swapped-registry route does NOT work (skillhub has no `/whoami` or `/publish/token/mint`); direct POST to `/api/v1/skills` 401s (publish route only accepts minted clawhub tokens) | use the community endpoint via script; no skillhub CLI exists |
+| SkillHub | transient `503 Service Temporarily Unavailable` (stgw edge) can hit publish or GET mid-batch | retry the same request after ~20s (verified self-heals); do not re-derive versions or rebuild staging |
 | GitHub | connector cannot create personal repos | PAT from credential file, REST API |
 | GitHub | contents API never deletes | full re-push from pub source; note stale files |
+| GitHub | dot-directories get pushed and may contain private content (`.local/`, `.clawhub/`) | exclude dot-directories in the walk before pushing; if already pushed, DELETE via contents API and verify raw 404 |
 | All | `\n` corruption in shell args | multi-line content only via written script files |
 
 ## Hard Rules
