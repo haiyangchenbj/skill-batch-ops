@@ -2,7 +2,7 @@
 name: skill-batch-ops
 slug: skill-batch-ops
 displayName: Skill Batch Operations
-version: "1.0.2"
+version: "1.0.3""
 description: "Batch operations across many skills (3+): inventory, batch patching, multi-platform publish, version alignment, and per-item verification. Use for stale-skill sweeps, fleet-wide version bumps, or bulk ClawHub / SkillHub / GitHub sync. Trigger keywords: 批量更新 skill, batch publish, 批量补丁, 批量发布, multi-skill sync, version phantom occupation, 版本空占, 429 rate limit, 两周未更新, stale skill sweep, skill 盘点, 批量同步, align versions, bulk publish verify. Companion to skill-audit-publish which handles single-skill governance; includes the platform restriction checklist."
 description_zh: "多 skill 批量运维：盘点 → 批量补丁 → 多平台发布 → 逐项验证。包含平台限制清单（版本空占、skillhub 严格校验、60s 限流、显式传参）。适用于陈旧 skill 盘点、批量版本对齐、三平台批量同步。单 skill 治理走 skill-audit-publish，本 skill 只做批量手术。"
 read_when: "Operating on 3 or more skills at once: stale-skill sweeps, batch frontmatter patches, fleet-wide version alignment, or bulk platform sync."
@@ -26,6 +26,8 @@ Purpose: run the same operation across N skills without repeating known platform
 5. [Deterministic] **Publish SkillHub** per skill, ≥60s between publishes (429 rate limit). Frontmatter must be complete: leading `---`, slug, displayName, version. Downloaded-from-ClawHub files usually need these backfilled.
 6. [Deterministic] **Sync GitHub** from the FINAL published source directory (the one with final version numbers), never from install/download directories which may hold stale content. Contents API upserts only — it never deletes removed files.
 7. [Deterministic] **Verify**: install each skill back from the platform; diff installed SKILL.md against the published source; confirm version fields match. Record per-item status.
+
+8. [LLM] **Freshness pass**: skills unchanged for over four weeks on the primary platform get a real micro-improvement bump (scan staleness -> pull lead package as baseline -> edit -> publish -> write back the local mother). Never an empty version bump.
 
 ## Platform Restriction Checklist
 
