@@ -1,6 +1,6 @@
 ## Description:
 
-Batch operations across many skills, including inventory, batch patching, multi-platform publishing, version alignment, and per-item verification.
+Coordinates inventory, batch updates, multi-platform publishing, version alignment, and verification across three or more agent skills.
 
 This skill is ready for commercial/non-commercial use.
 
@@ -14,7 +14,7 @@ MIT-0
 
 ## Use Case:
 
-Developers and maintainers use this skill to coordinate stale-skill sweeps, fleet-wide version bumps, and bulk publishing or synchronization across ClawHub, SkillHub, and GitHub for three or more skills.
+Developers use this skill to inventory and update multiple agent skills, align versions, publish them across supported platforms, and verify each result. It is intended for batch work on three or more skills rather than single-skill governance.
 
 ### Deployment Geography for Use:
 
@@ -22,35 +22,35 @@ Global
 
 ## Known Risks and Mitigations:
 
-Risk: Bulk maintenance can publish or synchronize multiple skill directories to external platforms and may use publishing credentials.
+Risk: Batch edits or publishing could introduce incorrect skill content or release unintended changes.
 
-Mitigation: Confirm the target list, destination platforms, and included files before publishing; use least-privilege tokens and avoid logging credentials.
+Mitigation: Review the proposed edits and every upload before publishing, and verify each item afterward.
 
-Risk: Skill directories may include secrets or private dot-directories during external synchronization.
+Risk: Publishing credentials could be exposed or used beyond the intended batch.
 
-Mitigation: Scan skill directories before publishing or syncing, exclude private dot-directories, and verify external copies after the operation.
+Mitigation: Use narrowly scoped publishing credentials and isolated verification directories.
 
-Risk: Batch operations can amplify versioning, rate-limit, or platform-state mistakes across many skills.
+Risk: A malformed version field could cause installation or version-selection problems.
 
-Mitigation: Query platform latest versions before choosing version numbers, respect publish rate limits, retry transient service failures without rebuilding staging, and verify each item after publishing.
+Mitigation: Correct and confirm the version field before installation.
 
 ## Reference(s):
 
-- [ClawHub skill release page](https://clawhub.ai/haiyangchenbj/skills/skill-batch-ops)
+- [ClawHub skill release](https://clawhub.ai/haiyangchenbj/skills/skill-batch-ops)
 
 ## Skill Output:
 
-**Output Type(s):** [text, markdown, shell commands, configuration, guidance]
+**Output Type(s):** [Markdown, Code, Shell commands, Configuration]
 
-**Output Format:** [Markdown table with concise operational guidance and command-oriented steps]
+**Output Format:** [Markdown guidance, commands, and skill-file edits]
 
 **Output Parameters:** [1D]
 
-**Other Properties Related to Output:** [Final output includes per-skill platform results, verification status, failures, and the unified version number used.]
+**Other Properties Related to Output:** [Includes per-skill verification guidance.]
 
 ## Skill Version(s):
 
-1.0.2 (source: frontmatter and server release evidence)
+1.0.3 (source: server-resolved release)
 
 ## Ethical Considerations:
 
