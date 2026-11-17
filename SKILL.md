@@ -2,7 +2,7 @@
 name: skill-batch-ops
 slug: skill-batch-ops
 displayName: Skill Batch Operations
-version: "1.0.4"
+version: "1.0.5"
 description: "Batch operations across many skills (3+): inventory, batch patching, multi-platform publish, version alignment, and per-item verification. Use for stale-skill sweeps, fleet-wide version bumps, or bulk ClawHub / SkillHub / GitHub sync. Trigger keywords: 批量更新 skill, batch publish, 批量补丁, 批量发布, multi-skill sync, version phantom occupation, 版本空占, 429 rate limit, 两周未更新, stale skill sweep, skill 盘点, 批量同步, align versions, bulk publish verify. Companion to skill-audit-publish which handles single-skill governance; includes the platform restriction checklist."
 description_zh: "多 skill 批量运维：盘点 → 批量补丁 → 多平台发布 → 逐项验证。包含平台限制清单（版本空占、skillhub 严格校验、60s 限流、显式传参）。适用于陈旧 skill 盘点、批量版本对齐、三平台批量同步。单 skill 治理走 skill-audit-publish，本 skill 只做批量手术。"
 read_when: "Operating on 3 or more skills at once: stale-skill sweeps, batch frontmatter patches, fleet-wide version alignment, or bulk platform sync."
@@ -20,7 +20,7 @@ Purpose: run the same operation across N skills without repeating known platform
 ## Workflow
 
 1. [Deterministic] **Inventory**: build the target list first (slug, local path, local version, platform latest per platform). Never publish blind from memory — always query platform latest before choosing version numbers.
-2. [Deterministic] **Version decision**: unified version across all platforms = max(existing platform latests) + 0.0.1. Check ClawHub with `inspect <slug> --versions` (platform Latest can lead the version field inside the file — phantom occupation). Check SkillHub via its API. Check GitHub via the repo frontmatter.
+2. [Deterministic] **Version decision**: unified version across all platforms = max(existing platform latests) + 0.0.1. Check ClawHub with `inspect <slug> --versions` (platform Latest can lead the version field inside the file — phantom occupation). SkillHub has no read API (all GETs return 405); use `clawhub inspect <slug> --versions` plus the GitHub mirror as side evidence instead of a direct SkillHub version query. Check GitHub via the repo frontmatter.
 3. [Deterministic] **Batch patch**: apply file changes via scripts written with the file-write tool. NEVER pass multi-line content through shell heredocs or `python -c` string arguments — newlines get corrupted into literal `/n`. Each patched skill gets frontmatter validated: leading `---`, slug, displayName, version, and quoting on the version value.
 4. [Deterministic] **Publish ClawHub** per skill with explicit parameters: `--slug`, `--name`, `--version`, `--changelog`, using `C:/` style paths. Remove any platform-generated files (e.g. skill-card.md) from the source directory first. "Version already exists" = phantom occupation → bump and retry.
 5. [Deterministic] **Publish SkillHub** per skill, ≥60s between publishes (429 rate limit). Frontmatter must be complete: leading `---`, slug, displayName, version. Downloaded-from-ClawHub files usually need these backfilled.
